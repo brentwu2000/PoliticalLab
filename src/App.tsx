@@ -18,7 +18,7 @@ export function App() {
 
   // Engine Configuration State
   const [engineConfig, setEngineConfig] = useState<EngineConfig>({
-    caseId: '3plus11',
+    caseId: 'zhonglian',
     maxArgUsageLimit: 2,
     maxRounds: 20,
     judgeStrictness: 'standard',
