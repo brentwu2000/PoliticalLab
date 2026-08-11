@@ -1,12 +1,17 @@
 import React from 'react';
-import type { EventDataPackage } from '../types/experiment';
-import { FileText, Calendar, Users, Gavel, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import type { CaseDataBundle } from '../types/experiment';
+import { FileText, Calendar, Users, Gavel, AlertTriangle, CheckCircle2, Target, ListChecks, Scale } from 'lucide-react';
+import { getSetupV3 } from '../utils/v3Analysis';
+import { partyLabelA, partyLabelB } from '../utils/partyDisplay';
 
 interface DataPackageTabProps {
-  dataPackage: EventDataPackage;
+  bundle: CaseDataBundle;
 }
 
-export const DataPackageTab: React.FC<DataPackageTabProps> = ({ dataPackage }) => {
+export const DataPackageTab: React.FC<DataPackageTabProps> = ({ bundle }) => {
+  const dataPackage = bundle.initialEventDataPackage;
+  const setupV3 = getSetupV3(bundle);
+
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Title & Intro */}
@@ -16,9 +21,9 @@ export const DataPackageTab: React.FC<DataPackageTabProps> = ({ dataPackage }) =
             <FileText className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-100">📁 Step 1 事件資料包（事實與時間線）</h2>
+            <h2 className="text-lg font-bold text-slate-100">📁 v3 Step 1-3｜事件資料包與攻防設定</h2>
             <p className="text-xs text-slate-400">
-              正式辯論以前建立之網路查證事實資料。禁止捏造法律、判決與事實，未確認項目嚴格標示 ⚠️【尚未確認】。
+              正式辯論以前先區分事實、法律、推論與未確認事項，並建立核心命題 P、爭點邊界與主要舉證問題。
             </p>
           </div>
         </div>
@@ -27,6 +32,84 @@ export const DataPackageTab: React.FC<DataPackageTabProps> = ({ dataPackage }) =
           <CheckCircle2 className="w-3.5 h-3.5" />
           資料包驗證完成
         </span>
+      </div>
+
+      {/* v3 Core Setup */}
+      <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-center gap-3 pb-5 border-b border-slate-800">
+          <div className="p-3 rounded-xl bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+            <Target className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-100">v3 核心命題 P 與攻防目標</h3>
+            <p className="text-xs text-slate-400">所有核心論證都必須能說明自己如何強化、削弱或改變核心命題的關鍵前提。</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
+          <div className="lg:col-span-3 rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-4">
+            <div className="text-cyan-300 font-bold mb-2">🎯 核心命題 P</div>
+            <p className="text-slate-200 leading-relaxed">{setupV3.coreProposition}</p>
+          </div>
+
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4">
+            <div className="text-emerald-300 font-bold mb-2">{partyLabelA} 攻防目標</div>
+            <p className="text-slate-300 leading-relaxed">{setupV3.agentAGoal}</p>
+          </div>
+
+          <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-4">
+            <div className="text-blue-300 font-bold mb-2">{partyLabelB} 攻防目標</div>
+            <p className="text-slate-300 leading-relaxed">{setupV3.agentBGoal}</p>
+          </div>
+
+          <div className="rounded-xl border border-slate-700 bg-slate-950/50 p-4">
+            <div className="text-slate-300 font-bold mb-2 flex items-center gap-1.5">
+              <Scale className="w-3.5 h-3.5 text-amber-300" />
+              v3 最高原則
+            </div>
+            <p className="text-slate-400 leading-relaxed">
+              新的案例不是新的論證；新的推論路徑才是新的論證。承認事實不等於立場讓步，攻防重點是爭奪事實代表的意義。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* v3 Issues and Burdens */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <h3 className="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
+            <ListChecks className="w-5 h-5 text-cyan-400" />
+            v3 爭點邊界
+          </h3>
+          <div className="space-y-3">
+            {setupV3.issueBoundaries.map(issue => (
+              <div key={issue.id} className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-xs font-bold text-cyan-300 bg-cyan-950/50 border border-cyan-800/50 rounded px-2 py-0.5">
+                    {issue.id}
+                  </span>
+                  <strong className="text-sm text-slate-200">{issue.title}</strong>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">{issue.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <h3 className="text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
+            <Gavel className="w-5 h-5 text-amber-400" />
+            v3 主要舉證問題
+          </h3>
+          <div className="space-y-3">
+            {setupV3.burdenQuestions.map((question, idx) => (
+              <div key={idx} className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
+                <span className="font-mono text-amber-300 mr-2">Q{idx + 1}</span>
+                {question}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* 1. Fact Timeline */}

@@ -152,7 +152,7 @@ export const getMatchWeightedScore = (rounds: RoundData[], currentRoundIndex: nu
     penaltyB,
     finalA,
     finalB,
-    verdict: Math.abs(finalA - finalB) < 0.5 ? '⚪ 雙方相當' : finalA > finalB ? '🔵 A 方勝' : '🔴 B 方勝'
+    verdict: Math.abs(finalA - finalB) < 0.5 ? '⚪ 雙方相當' : finalA > finalB ? '🟢 A 方勝' : '🔵 B 方勝'
   };
 };
 

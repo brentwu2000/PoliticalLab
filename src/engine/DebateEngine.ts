@@ -37,7 +37,7 @@ export class DebateEngine {
    * penalty counters, and resource pool percentages based on EngineConfig.
    */
   public static evaluateCase(bundle: CaseDataBundle, config: EngineConfig): DynamicRoundResult {
-    const rawRounds = bundle.mockRounds;
+    const rawRounds = bundle.mockRounds.slice(0, config.maxRounds);
     const maxUsage = config.maxArgUsageLimit;
     const isStrict = config.judgeStrictness === 'strict';
 
@@ -149,7 +149,7 @@ export class DebateEngine {
     }
 
     const lastRound = processedRounds[processedRounds.length - 1];
-    const isFinished = processedRounds.length >= bundle.mockRounds.length;
+    const isFinished = processedRounds.length >= rawRounds.length;
     let winnerParty: 'A' | 'B' | 'Tie' = 'Tie';
     if (lastRound.judge.roundWinner.includes('🔵')) winnerParty = 'A';
     if (lastRound.judge.roundWinner.includes('🔴')) winnerParty = 'B';

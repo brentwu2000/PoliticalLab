@@ -2,6 +2,8 @@ import React from 'react';
 import type { RoundData } from '../types/experiment';
 import { BarChart2, ShieldAlert, Award, RefreshCw, FolderSearch, AlertTriangle, Zap, Trophy, CheckCircle2 } from 'lucide-react';
 import { formatScore, getMatchWeightedScore } from '../utils/scoring';
+import { formatPartyMarkers, partyLabelA, partyLabelB } from '../utils/partyDisplay';
+import { getArgumentDebts, getFamilyResourceRows, getStateTone } from '../utils/v3Analysis';
 
 interface DashboardTabProps {
   rounds: RoundData[];
@@ -58,36 +60,21 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
 
   const resourceA = currentRound ? currentRound.resourceA : 100;
   const resourceB = currentRound ? currentRound.resourceB : 100;
+  const familyRows = getFamilyResourceRows(currentRound?.argTreeSnapshotA ?? [], currentRound?.argTreeSnapshotB ?? []);
+  const argumentDebts = getArgumentDebts(rounds, currentRoundIndex);
+  const debtA = argumentDebts.filter(debt => debt.debtor === 'A').length;
+  const debtB = argumentDebts.filter(debt => debt.debtor === 'B').length;
   const totalScoreA = attackTotalA + defenseTotalA;
   const totalScoreB = attackTotalB + defenseTotalB;
   const matchScore = getMatchWeightedScore(rounds, currentRoundIndex);
-  const finalVerdict = matchScore.verdict;
-  const leadingSide = totalScoreA === totalScoreB ? '雙方攻防總分持平' : totalScoreA > totalScoreB ? '🔵 A 方攻防總分領先' : '🔴 B 方攻防總分領先';
+  const finalVerdict = formatPartyMarkers(matchScore.verdict);
+  const leadingSide = totalScoreA === totalScoreB ? '雙方攻防總分持平' : totalScoreA > totalScoreB ? '🟢 A 方攻防總分領先' : '🔵 B 方攻防總分領先';
   const weightedLeader =
     Math.abs(matchScore.finalA - matchScore.finalB) < 0.5
       ? '加權總分接近，暫維持平手'
       : matchScore.finalA > matchScore.finalB
-      ? '🔵 A 方加權總分領先'
-      : '🔴 B 方加權總分領先';
-
-  // Render progress bar representation
-  const renderProgressBar = (pct: number, colorClass: string) => {
-    const blocks = Math.round(pct / 10);
-    const filled = '█'.repeat(blocks);
-    const empty = '░'.repeat(10 - blocks);
-    return (
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs font-mono">
-          <span className="text-slate-400">論證資源殘量:</span>
-          <span className="font-bold text-slate-100">{pct}%</span>
-        </div>
-        <div className="w-full bg-slate-950 rounded-lg p-1.5 border border-slate-800 flex font-mono text-sm tracking-wider overflow-hidden">
-          <span className={colorClass}>{filled}</span>
-          <span className="text-slate-700">{empty}</span>
-        </div>
-      </div>
-    );
-  };
+      ? '🟢 A 方加權總分領先'
+      : '🔵 B 方加權總分領先';
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -98,9 +85,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
             <BarChart2 className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-100">📊 戰況與論證資源儀表板 (Step 10)</h2>
+            <h2 className="text-lg font-bold text-slate-100">📊 v3 戰況與論證家族儀表板</h2>
             <p className="text-xs text-slate-400">
-              即時統計至 Round {currentRound ? currentRound.roundNumber : 1} 之攻防戰力、翻舊帳、Whataboutism 與論證資源殘量。
+              即時統計至 Round {currentRound ? currentRound.roundNumber : 1} 之攻防戰力、強制接招、論證債務與各論證家族資源狀態。
             </p>
           </div>
         </div>
@@ -115,9 +102,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
           <div className="text-xs text-slate-400 mb-2">累積勝場</div>
           <div className="flex items-end gap-3">
-            <span className="text-3xl font-black text-blue-400">{winA}</span>
+            <span className="text-3xl font-black text-emerald-400">{winA}</span>
             <span className="text-sm text-slate-500 pb-1">:</span>
-            <span className="text-3xl font-black text-rose-400">{winB}</span>
+            <span className="text-3xl font-black text-blue-400">{winB}</span>
             <span className="text-xs text-slate-400 pb-1">平手 {draw}</span>
           </div>
           <p className="mt-3 text-xs text-slate-400">以裁判每回合正式判定計算，直接反映目前誰拿下更多回合。</p>
@@ -126,9 +113,9 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
           <div className="text-xs text-slate-400 mb-2">攻防總分</div>
           <div className="flex items-end gap-3">
-            <span className="text-3xl font-black text-blue-400">{totalScoreA}</span>
+            <span className="text-3xl font-black text-emerald-400">{totalScoreA}</span>
             <span className="text-sm text-slate-500 pb-1">:</span>
-            <span className="text-3xl font-black text-rose-400">{totalScoreB}</span>
+            <span className="text-3xl font-black text-blue-400">{totalScoreB}</span>
           </div>
           <p className="mt-3 text-xs text-slate-300 font-semibold">{leadingSide}</p>
         </div>
@@ -138,7 +125,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
           <div className="text-lg font-black text-slate-100">
             {weightedLeader}
           </div>
-          <p className="mt-3 text-xs text-slate-400">最後判定：{finalVerdict}。資源只作輔助觀察，不直接決定敗北。</p>
+          <p className="mt-3 text-xs text-slate-400">最後判定：{finalVerdict}。v3 以推論路徑是否仍有實質差異作為資源判讀。</p>
         </div>
       </div>
 
@@ -151,7 +138,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-100">終局勝負加權評判</h3>
-              <p className="text-xs text-slate-400">核心主張與事實法律有效性優先，資源殘量只作輔助分數，再扣除話術風險。</p>
+              <p className="text-xs text-slate-400">核心主張與事實法律有效性優先，論證家族資源只作輔助分數，再扣除話術風險。</p>
             </div>
           </div>
 
@@ -189,10 +176,10 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
               note: `正式判定：A ${winA}｜B ${winB}｜平 ${draw}`
             },
             {
-              title: '5. 資源殘量',
-              value: `A ${resourceA}%｜B ${resourceB}%`,
+              title: '5. 論證家族資源',
+              value: `A ${familyRows.filter(row => row.stateA !== '耗盡').length} 類｜B ${familyRows.filter(row => row.stateB !== '耗盡').length} 類`,
               active: resourceA !== resourceB,
-              note: '只佔低權重，用來觀察重複與新論點枯竭風險'
+              note: '以高/中/低/接近耗盡/耗盡描述，不使用精確百分比'
             },
             {
               title: '6. 可信度扣分',
@@ -223,63 +210,105 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
               <div className="text-xs text-slate-400">最終加權總分</div>
-              <div className="mt-1 text-sm text-slate-300">公式：主張 35% + 有效性 35% + 攻防 15% + 勝場 10% + 資源 5% - 加權扣分</div>
+              <div className="mt-1 text-sm text-slate-300">公式：主張 35% + 有效性 35% + 攻防 15% + 勝場 10% + 家族資源輔助 5% - 加權扣分</div>
             </div>
             <div className="text-2xl font-black font-mono text-slate-50">
-              <span className="text-blue-400">{formatScore(matchScore.finalA)}</span>
+              <span className="text-emerald-400">{formatScore(matchScore.finalA)}</span>
               <span className="text-slate-500 px-2">:</span>
-              <span className="text-rose-400">{formatScore(matchScore.finalB)}</span>
+              <span className="text-blue-400">{formatScore(matchScore.finalB)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Argument Resource Gauges */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Agent A Resource Gauge */}
-        <div className="bg-slate-900/90 border border-blue-500/30 rounded-2xl p-6 shadow-xl relative">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-              <h3 className="text-base font-bold text-blue-400">🔵 Agent A｜民進黨 資源殘量</h3>
-            </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
-              {resourceA > 30 ? '高 / 充足' : resourceA > 10 ? '中 / 消耗中' : '低 / 接近耗盡'}
-            </span>
-          </div>
-
-          <div className="mt-4">
-            {renderProgressBar(resourceA, 'text-blue-400')}
-          </div>
-
-          <p className="mt-3 text-[11px] text-slate-400 leading-relaxed">
-            依據目前已建立的論證樹，🔵 A 方還剩餘 <strong className="text-blue-300">{resourceA}%</strong> 尚未使用且具有實質差異的攻防方向。
-          </p>
+      {/* v3 Argument Family Resources */}
+      <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 shadow-xl">
+        <h3 className="text-base font-bold text-slate-200 mb-2 flex items-center gap-2">
+          <Zap className="w-4 h-4 text-cyan-400" />
+          v3 論證家族資源
+        </h3>
+        <p className="text-xs text-slate-400 mb-4">
+          v3 不使用沒有客觀依據的精確百分比；此表描述尚未使用且具有實質差異的推論方向。
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                <th className="py-3 px-4 font-semibold">論證家族</th>
+                <th className="py-3 px-4 font-semibold text-emerald-400 text-center">{partyLabelA}</th>
+                <th className="py-3 px-4 font-semibold text-blue-400 text-center">{partyLabelB}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60 text-slate-300">
+              {familyRows.map(row => (
+                <tr key={row.family}>
+                  <td className="py-2.5 px-4 font-medium text-slate-300">{row.family}</td>
+                  <td className="py-2.5 px-4 text-center">
+                    <span className={`inline-flex min-w-20 justify-center rounded-full border px-2.5 py-0.5 font-bold ${getStateTone(row.stateA)}`}>
+                      {row.stateA}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-4 text-center">
+                    <span className={`inline-flex min-w-20 justify-center rounded-full border px-2.5 py-0.5 font-bold ${getStateTone(row.stateB)}`}>
+                      {row.stateB}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        {/* Agent B Resource Gauge */}
-        <div className="bg-slate-900/90 border border-rose-500/30 rounded-2xl p-6 shadow-xl relative">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-rose-500"></span>
-              <h3 className="text-base font-bold text-rose-400">🔴 Agent B｜國民黨 資源殘量</h3>
+      {/* v3 Argument Debts */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <h3 className="text-base font-bold text-slate-200 mb-2 flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-orange-400" />
+          v3 未回答論證債務
+        </h3>
+        <p className="text-xs text-slate-400 mb-4">
+          從 Round 2 起，每方必須先處理對方上一回合的重要核心論證；主要迴避會形成論證債務。
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <div className="text-slate-400">A 方債務</div>
+            <div className="mt-1 text-2xl font-black text-emerald-400">{debtA}</div>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <div className="text-slate-400">B 方債務</div>
+            <div className="mt-1 text-2xl font-black text-blue-400">{debtB}</div>
+          </div>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+            <div className="text-slate-400">論證穿透風險</div>
+            <div className="mt-1 text-2xl font-black text-orange-300">
+              {argumentDebts.filter(debt => debt.roundsOwed >= 2 && debt.status !== '🟢 有效回應').length}
             </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">
-              {resourceB > 30 ? '高 / 充足' : resourceB > 0 ? '低 / 接近耗盡' : '已耗盡 / 輔助扣分'}
-            </span>
           </div>
-
-          <div className="mt-4">
-            {renderProgressBar(resourceB, 'text-rose-400')}
-          </div>
-
-          <p className="mt-3 text-[11px] text-slate-400 leading-relaxed">
-            依據目前已建立的論證樹，🔴 B 方剩餘 <strong className="text-rose-300">{resourceB}%</strong> 攻防資源。
-            {resourceB === 0 && <span className="text-rose-400 font-bold block mt-1">資源歸零代表新論點枯竭風險升高，但仍須回到核心主張與有效性判斷。</span>}
-          </p>
         </div>
-
+        {argumentDebts.length > 0 && (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                  <th className="py-3 px-4">核心論證</th>
+                  <th className="py-3 px-4">被攻擊方</th>
+                  <th className="py-3 px-4">狀態</th>
+                  <th className="py-3 px-4 text-right">拖欠回合</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                {argumentDebts.map(debt => (
+                  <tr key={`${debt.argId}-${debt.debtor}`}>
+                    <td className="py-2.5 px-4 font-mono font-bold">{debt.argId}</td>
+                    <td className="py-2.5 px-4">{debt.debtor === 'A' ? 'A 方' : 'B 方'}</td>
+                    <td className="py-2.5 px-4">{debt.status}</td>
+                    <td className="py-2.5 px-4 text-right font-mono">{debt.roundsOwed}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Cumulative War Stats Table */}
@@ -294,8 +323,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
                 <th className="py-3 px-4 font-semibold">統計指標</th>
-                <th className="py-3 px-4 font-semibold text-blue-400 text-center">🔵 Agent A (民進黨)</th>
-                <th className="py-3 px-4 font-semibold text-rose-400 text-center">🔴 Agent B (國民黨)</th>
+                <th className="py-3 px-4 font-semibold text-emerald-400 text-center">{partyLabelA} (民進黨)</th>
+                <th className="py-3 px-4 font-semibold text-blue-400 text-center">{partyLabelB} (國民黨)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
@@ -304,8 +333,8 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
                   <FolderSearch className="w-3.5 h-3.5 text-indigo-400" />
                   📂 翻舊帳歷史案例次數
                 </td>
-                <td className="py-2.5 px-4 text-center font-mono text-blue-300 font-bold">{digUpHistoryA} 次</td>
-                <td className="py-2.5 px-4 text-center font-mono text-rose-300 font-bold">{digUpHistoryB} 次</td>
+                <td className="py-2.5 px-4 text-center font-mono text-emerald-300 font-bold">{digUpHistoryA} 次</td>
+                <td className="py-2.5 px-4 text-center font-mono text-blue-300 font-bold">{digUpHistoryB} 次</td>
               </tr>
               <tr>
                 <td className="py-2.5 px-4 font-medium text-slate-400 flex items-center gap-1.5">
@@ -364,15 +393,15 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ rounds, currentRound
                   isSelected ? 'ring-2 ring-indigo-500 shadow-lg' : ''
                 } ${
                   isWinnerA
-                    ? 'bg-blue-950/40 border-blue-800/80 text-blue-300'
+                    ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-300'
                     : isWinnerB
-                    ? 'bg-rose-950/40 border-rose-800/80 text-rose-300'
+                    ? 'bg-blue-950/40 border-blue-800/80 text-blue-300'
                     : 'bg-slate-800/50 border-slate-700 text-slate-400'
                 }`}
               >
                 <div className="text-[10px] font-mono text-slate-500 mb-1">R{r.roundNumber}</div>
                 <div className="text-xs font-bold">
-                  {isWinnerA ? '🔵 A 勝' : isWinnerB ? '🔴 B 勝' : '⚪ 平手'}
+                  {isWinnerA ? '🟢 A 勝' : isWinnerB ? '🔵 B 勝' : '⚪ 平手'}
                 </div>
               </div>
             );

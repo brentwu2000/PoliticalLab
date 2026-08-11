@@ -1,6 +1,7 @@
 import React from 'react';
 import type { MirrorPattern } from '../types/experiment';
 import { Dna, HelpCircle, Sparkles, Trophy, CheckCircle2 } from 'lucide-react';
+import { partyLabelA, partyLabelB } from '../utils/partyDisplay';
 
 interface MirrorAnalysisTabProps {
   mirrorPatterns?: MirrorPattern[];
@@ -91,12 +92,12 @@ export const MirrorAnalysisTab: React.FC<MirrorAnalysisTabProps> = ({ mirrorPatt
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-blue-950/30 border border-blue-800/40 space-y-1">
-                  <span className="text-blue-400 font-semibold">🔵 Agent A (民進黨)：</span>
+                <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-800/40 space-y-1">
+                  <span className="text-emerald-400 font-semibold">{partyLabelA} (民進黨)：</span>
                   <p className="text-slate-300 leading-relaxed">{pattern.agentAStatement}</p>
                 </div>
-                <div className="p-3 rounded-lg bg-rose-950/30 border border-rose-800/40 space-y-1">
-                  <span className="text-rose-400 font-semibold">🔴 Agent B (國民黨)：</span>
+                <div className="p-3 rounded-lg bg-blue-950/30 border border-blue-800/40 space-y-1">
+                  <span className="text-blue-400 font-semibold">{partyLabelB} (國民黨)：</span>
                   <p className="text-slate-300 leading-relaxed">{pattern.agentBStatement}</p>
                 </div>
               </div>

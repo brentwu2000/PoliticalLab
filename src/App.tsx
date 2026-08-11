@@ -20,6 +20,7 @@ export function App() {
   const [engineConfig, setEngineConfig] = useState<EngineConfig>({
     caseId: '3plus11',
     maxArgUsageLimit: 2,
+    maxRounds: 20,
     judgeStrictness: 'standard',
     playbackSpeed: 1
   });
@@ -117,7 +118,7 @@ export function App() {
 
         {activeTab === 'package' && (
           <DataPackageTab
-            dataPackage={bundle.initialEventDataPackage}
+            bundle={bundle}
           />
         )}
 
@@ -142,7 +143,7 @@ export function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
-        <p>政治立場攻防實驗 v2 ── 動態論證資源模擬引擎系統 │ PoliticalLab Engine v2.5</p>
+        <p>政治立場攻防實驗 v3 ── 有限論證資源與政治辯護結構實驗 │ PoliticalLab Engine v3</p>
       </footer>
     </div>
   );

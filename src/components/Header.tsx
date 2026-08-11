@@ -57,12 +57,12 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-                政治立場攻防實驗 v2
+              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                政治立場攻防實驗 v3
               </h1>
               <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 font-mono">
                 <Sparkles className="w-3 h-3 text-amber-400" />
-                動態模擬引擎
+                v3 結構評判
               </span>
             </div>
             
@@ -93,6 +93,7 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="text-slate-600">│</span>
           <div className="flex items-center gap-2 text-slate-400 font-mono text-[11px]">
             <span>上限: {config.maxArgUsageLimit}次</span>
+            <span>最多: {config.maxRounds}R</span>
             <span>嚴格度: {config.judgeStrictness === 'strict' ? '🔴嚴格' : '🟢標準'}</span>
             <span>速度: {config.playbackSpeed}x</span>
           </div>
@@ -191,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          📁 Step 1 事件資料包
+          📁 v3 資料包與攻防設定
         </button>
 
         <button

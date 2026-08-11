@@ -1,5 +1,20 @@
 export type StatusType = '🟢 有效' | '🟡 有爭議' | '🔴 已擊破';
 export type CaseId = '3plus11' | 'jinghua' | 'medigen';
+export type ArgumentFamily =
+  | '事實型'
+  | '法律型'
+  | '程序型'
+  | '因果型'
+  | '政治責任型'
+  | '道德責任型'
+  | '組織責任型'
+  | '類案比較型'
+  | '標準一致性型'
+  | '歷史反擊型'
+  | '其他';
+
+export type ForcedResponseStatus = '🟢 有效回應' | '🟡 部分回應' | '🟠 主要迴避' | '🔴 未回應';
+export type FamilyResourceState = '高' | '中' | '低' | '接近耗盡' | '耗盡';
 
 export interface ArgumentNode {
   id: string; // e.g. "A-01", "B-01"
@@ -94,9 +109,24 @@ export interface MirrorPattern {
   explanation: string;
 }
 
+export interface IssueBoundary {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface ExperimentSetupV3 {
+  coreProposition: string;
+  agentAGoal: string;
+  agentBGoal: string;
+  issueBoundaries: IssueBoundary[];
+  burdenQuestions: string[];
+}
+
 export interface EngineConfig {
   caseId: CaseId;
   maxArgUsageLimit: number; // default 2
+  maxRounds: number; // v3 default 20
   judgeStrictness: 'standard' | 'strict'; // standard vs strict penalty scaling
   playbackSpeed: number; // 1x, 2x, 4x
 }
@@ -105,6 +135,7 @@ export interface CaseDataBundle {
   id: CaseId;
   title: string;
   initialEventDataPackage: EventDataPackage;
+  setupV3?: ExperimentSetupV3;
   initialNodesA: ArgumentNode[];
   initialNodesB: ArgumentNode[];
   mockRounds: RoundData[];

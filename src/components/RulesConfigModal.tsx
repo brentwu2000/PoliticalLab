@@ -29,8 +29,8 @@ export const RulesConfigModal: React.FC<RulesConfigModalProps> = ({
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-100">底層模擬引擎設定 (Engine Config)</h3>
-              <p className="text-xs text-slate-400">調整實驗規則、嚴格度與事件案例後重新推演</p>
+              <h3 className="text-lg font-bold text-slate-100">v3 底層模擬引擎設定</h3>
+              <p className="text-xs text-slate-400">調整有限論證資源、強制接招與事件案例後重新推演</p>
             </div>
           </div>
           <button
@@ -85,6 +85,32 @@ export const RulesConfigModal: React.FC<RulesConfigModalProps> = ({
             </div>
             <p className="text-[11px] text-slate-400">
               超過使用上限且無法提出新區分時，該論據狀態將轉為 🟡/🔴 降級。
+            </p>
+          </div>
+
+          {/* Max Rounds */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-slate-300">
+              🧾 最大回合數 (v3 Max Rounds):
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[10, 15, 20].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => onUpdateConfig({ ...config, maxRounds: num })}
+                  className={`py-2 rounded-xl border text-xs font-bold transition-all ${
+                    config.maxRounds === num
+                      ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/30'
+                      : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+                  }`}
+                >
+                  {num} Round {num === 20 ? '(v3)' : ''}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-400">
+              v3 預設最多 20 Round；若任一方正式進入論證資源耗盡，則可提前終止。
             </p>
           </div>
 
