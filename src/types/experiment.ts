@@ -1,5 +1,5 @@
 export type StatusType = '🟢 有效' | '🟡 有爭議' | '🔴 已擊破';
-export type CaseId = '3plus11' | 'jinghua' | 'medigen' | 'zhonglian';
+export type CaseId = '3plus11' | 'jinghua' | 'medigen' | 'zhonglian' | 'vaccineBlocking';
 export type ArgumentFamily =
   | '事實型'
   | '法律型'

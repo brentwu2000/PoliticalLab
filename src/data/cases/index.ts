@@ -3,21 +3,25 @@ import { threePlusElevenBundle } from './threePlusEleven';
 import { jinghuaBundle } from './jinghua';
 import { medigenBundle } from './medigen';
 import { zhonglianBundle } from './zhonglian';
+import { vaccineBlockingBundle } from './vaccineBlocking';
 
 export const allCases: Record<CaseId, CaseDataBundle> = {
   '3plus11': threePlusElevenBundle,
   'jinghua': jinghuaBundle,
   'medigen': medigenBundle,
-  'zhonglian': zhonglianBundle
+  'zhonglian': zhonglianBundle,
+  'vaccineBlocking': vaccineBlockingBundle
 };
 
 export const caseList = [
   { id: '3plus11' as CaseId, title: '3+11邊境檢疫政策與會議紀錄爭議案' },
   { id: 'jinghua' as CaseId, title: '柯文哲京華城與政治獻金爭議案' },
   { id: 'medigen' as CaseId, title: '高端疫苗與新冠疫情防護爭議案' },
-  { id: 'zhonglian' as CaseId, title: '中聯毒油事件與食安責任歸屬爭議案' }
+  { id: 'zhonglian' as CaseId, title: '中聯毒油事件與食安責任歸屬爭議案' },
+  { id: 'vaccineBlocking' as CaseId, title: '民間採購BNT疫苗與擋疫苗爭議案' }
 ];
 
 export function getCaseBundle(caseId: CaseId): CaseDataBundle {
   return allCases[caseId] || zhonglianBundle;
 }
+
